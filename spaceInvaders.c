@@ -39,8 +39,10 @@ void fillScreen(char screen[][SCREEN_SIZE_X]){
     int i, j;
     for (i = 0; i < SCREEN_SIZE_Y; i++) {
         for (j = 0; j < SCREEN_SIZE_X; j++) {
-            if (i == 0 || j == 0 || j == SCREEN_SIZE_X - 1 || i == SCREEN_SIZE_Y -1) {
-                screen[i][j] = '*';
+            if (i == 0 || i == SCREEN_SIZE_Y -1 ) {
+                screen[i][j] = '_';
+            } else if (j == SCREEN_SIZE_X - 1 || j == 0) {
+                screen[i][j] = '|';
             } else {
                 screen[i][j] = ' ';
             }
@@ -68,7 +70,6 @@ void movePlayer(char screen[][SCREEN_SIZE_X]) {
     int value;
 
     do {
-
         value = getch();
 
         switch (value) {
@@ -86,8 +87,8 @@ void movePlayer(char screen[][SCREEN_SIZE_X]) {
                 break;
 
         getchar(); // pega o caractere de quebra de linha se tiver
-
         }
+
     } while (check);
 
     system("cls");
