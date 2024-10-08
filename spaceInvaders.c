@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 
 #define SCREEN_SIZE_Y 13 //linhas - desconsiderando as bordas são 11 linhas 
 #define SCREEN_SIZE_X 23 //colunas - desconsiderando as bordas são 21 colunas
@@ -68,7 +69,7 @@ void movePlayer(char screen[][SCREEN_SIZE_X]) {
 
     do {
 
-        value = getchar();
+        value = getch();
 
         switch (value) {
             case (97):
