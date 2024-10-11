@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "c:\msys64\ucrt64\include\ncursesw\ncurses.h"
+#include "c:\msys64\ucrt64\include\ncurses\ncurses.h"
 #include "elementos.c"
 #include <unistd.h>
 
@@ -29,9 +29,11 @@ int main() {
 
     while (!gameOver) {
 
-        atualizar(pt, ptiro);
-        mover(pt, ptiro);
-
+        mover(pt, ptiro);       // mover jogador e receber ação
+        atirar(ptiro);          // mover tiro
+        atualizar(pt, ptiro);   // atualizar elementos na tela
+        usleep(100000);         // delay para o movimento do tiro em microsegundos 
+                                // nesse caso, em 0.1s
     }
 
     getch();

@@ -1,7 +1,7 @@
 #ifndef ELEMENTOS
 #define ELEMENTOS
 
-#include "c:\msys64\ucrt64\include\ncursesw\ncurses.h"
+#include "c:\msys64\ucrt64\include\ncurses\ncurses.h"
 
 typedef struct player {
     WINDOW * winAtual;
@@ -23,12 +23,6 @@ typedef struct shot {
 
 //atribui valores a uma variável do tipo player
 player newPlayer(WINDOW *win, int yAtual, int xAtual, int yMax, int xMax, int lifes, char format);
-
-//move jogador para direita
-void moverDireita(player * Jogador);
-
-//move jogador para esquerda
-void moverEsquerda(player * Jogador);
 
 // move o jogador de um lado para outro
 void mover(player * Jogador, shot *tiro);

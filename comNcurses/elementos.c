@@ -1,4 +1,4 @@
-#include "c:\msys64\ucrt64\include\ncursesw\ncurses.h"
+#include "c:\msys64\ucrt64\include\ncurses\ncurses.h"
 #include "elementos.h"
 #include <unistd.h>
 
@@ -8,40 +8,28 @@ player newPlayer(WINDOW *winAtual, int yAtual, int xAtual, int yMax, int xMax, i
      return tempPlayer;
 }
 
-// move para a direita se o jogador nao atingiu a borda
-void moverDireita(player * Jogador){
-    mvwaddch(Jogador->winAtual, Jogador->yAtual, Jogador->xAtual, ' ');
-    if (Jogador->xAtual < Jogador->xMax - 2) {
-        Jogador->xAtual++;
-    } else {
-        Jogador->xAtual = Jogador->xMax - 2;
-    }
-}
-
-//move para a esquerda se o jogador não atingiu a borda
-void moverEsquerda(player * Jogador) {
-    mvwaddch(Jogador->winAtual, Jogador->yAtual, Jogador->xAtual, ' ');
-    if (Jogador->xAtual > 1) {
-        Jogador->xAtual--;
-    } else {
-        Jogador->xAtual = 1;
-    }
-}
-
-//move o jogador em geral
+//ações do jogador em geral
 void mover(player * Jogador, shot *tiro) {
     int valor;
     valor = getch();
 
     switch(valor) {
         case (97):
-            moverEsquerda(Jogador);
+            mvwaddch(Jogador->winAtual, Jogador->yAtual, Jogador->xAtual, ' ');
+            if (Jogador->xAtual > 1) {
+                Jogador->xAtual--;
+            } 
             break;
         case (100):
-            moverDireita(Jogador);
+            mvwaddch(Jogador->winAtual, Jogador->yAtual, Jogador->xAtual, ' ');
+            if (Jogador->xAtual < Jogador->xMax - 2) {
+                Jogador->xAtual++;
+            }
             break;
         case (119):
-            atirar(tiro);
+            tiro->lancado = 1;
+            tiro->yAtual = Jogador->yAtual - 1;
+            tiro->xAtual = Jogador->xAtual;
             break;
         default:
             break;
@@ -57,19 +45,22 @@ void atualizar(player * Jogador, shot*tiro) {
     if (tiro->lancado == 1) {
     mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, tiro->format);
     wrefresh(tiro->winAtual);
+    usleep(100000); // tempo em microsegundos
     }
 }
 
 void atirar(shot *tiro) {
-    tiro->lancado = 1;
-    if (tiro->yAtual > 1) {
-        mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
-        wrefresh(tiro->winAtual);
-        tiro->yAtual--;
-        usleep(10000); // tempo em microsegundos
-    //tiro ainda nao chegou no final
-    } else {
-        tiro->format = ' ';
-         //tiro chegou no final
+    if (tiro -> lancado == 1) {
+        if (tiro->yAtual > 1) {
+            mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
+            wrefresh(tiro->winAtual);
+            tiro->yAtual--;
+            wrefresh(tiro->winAtual);
+        //tiro ainda nao chegou no final
+        } else {
+            tiro->format = ' ';
+            tiro->lancado = 0;
+            //tiro chegou no final
+        }
     }
 }

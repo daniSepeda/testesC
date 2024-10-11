@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <windows.h>
 
 #define SCREEN_SIZE_Y 13 //linhas - desconsiderando as bordas são 11 linhas 
 #define SCREEN_SIZE_X 23 //colunas - desconsiderando as bordas são 21 colunas
@@ -11,12 +12,11 @@ typedef struct player {
     int x, y;   // coordenadas dentro da matriz
 }player;
 
-player Jogador = {'H', 1, SCREEN_SIZE_Y - 2, SCREEN_SIZE_X / 2}; 
-
 typedef struct shot {
     char format;
     int visibility;
     int y;
+    int x;
 }shot;
 
 void fillScreen(char screen[][SCREEN_SIZE_X]);
@@ -26,6 +26,8 @@ void printScreen(char screen[][SCREEN_SIZE_X]);
 void movePlayer(char screen[][SCREEN_SIZE_X]);
 
 void playerShot();
+
+player Jogador = {'@', 1, SCREEN_SIZE_Y - 2, SCREEN_SIZE_X / 2}; 
 
 int main() {
 
@@ -103,8 +105,8 @@ void movePlayer(char screen[][SCREEN_SIZE_X]) {
 
 }
 
-void playerShot() {
-    shot tiro = {'I', 1, Jogador.y - 1};
+void playerShot( void ) {
+    shot tiro = {'I', 1, Jogador.y - 1, Jogador.x};
 
 
 }
