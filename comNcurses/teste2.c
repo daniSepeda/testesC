@@ -11,7 +11,7 @@ int main() {
     int gameOver = 0, tiros, tiro_chegada = 1;
 
     initscr();
-    cbreak;
+    cbreak();
     noecho();
     curs_set(0);
     nodelay(stdscr, TRUE);
