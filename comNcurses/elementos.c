@@ -45,19 +45,19 @@ void atualizar(player * Jogador, shot*tiro) {
     if (tiro->lancado == 1) {
     mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, tiro->format);
     wrefresh(tiro->winAtual);
-    usleep(100000); // tempo em microsegundos
+    //usleep(100000); // tempo em microsegundos
     }
 }
 
-void atirar(shot *tiro) {
+void moverTiro(shot *tiro) {
     if (tiro -> lancado == 1) {
         if (tiro->yAtual > 1) {
             mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
             wrefresh(tiro->winAtual);
             tiro->yAtual--;
-            wrefresh(tiro->winAtual);
         //tiro ainda nao chegou no final
         } else {
+            mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
             tiro->format = ' ';
             tiro->lancado = 0;
             //tiro chegou no final

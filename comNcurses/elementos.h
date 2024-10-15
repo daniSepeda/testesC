@@ -32,6 +32,6 @@ void mover(player * Jogador, shot *tiro);
 void atualizar(player *Jogador, shot* tiro);
 
 // iniciar animação de tiro após receber o sinal
-void atirar(shot * tiro);
+void moverTiro(shot * tiro);
 
 #endif // ELEMENTOS

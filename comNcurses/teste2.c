@@ -16,12 +16,11 @@ int main() {
     curs_set(0);
     nodelay(stdscr, TRUE);
 
-    WINDOW * tela = newwin(HEIGHT, WIDTH, 5, 30); //atualizar tudo dentro da borda
+    WINDOW * tela = newwin(HEIGHT, WIDTH, 5, 30); 
     box(tela, 0, 0);
-    refresh();
+    refresh(); //atualizar tudo dentro da borda
 
-
-    player jogador = newPlayer(tela, HEIGHT - 2, WIDTH / 2, HEIGHT, WIDTH, 1, '@');
+    player jogador = {tela, HEIGHT - 2, WIDTH / 2, HEIGHT, WIDTH, 1, '@'};
     player *pt = &jogador;
 
     shot tiro = {tela, jogador.yAtual - 1, jogador.xAtual, 0, '^'};
@@ -29,11 +28,10 @@ int main() {
 
     while (!gameOver) {
 
-        mover(pt, ptiro);       // mover jogador e receber ação
-        atirar(ptiro);          // mover tiro
-        atualizar(pt, ptiro);   // atualizar elementos na tela
-        usleep(100000);         // delay para o movimento do tiro em microsegundos 
-                                // nesse caso, em 0.1s
+        mover(pt, ptiro);          // mover jogador e receber ação
+        moverTiro(ptiro);          // mover tiro
+        atualizar(pt, ptiro);      // atualizar elementos na tela
+        usleep(100000);            // delay para o movimento do tiro em microsegundos, nesse caso, de 0.1s
     }
 
     getch();
