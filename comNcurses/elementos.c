@@ -8,8 +8,14 @@ player newPlayer(WINDOW *winAtual, int yAtual, int xAtual, int yMax, int xMax, i
      return tempPlayer;
 }
 
+// função para receber e atribuir valores a uma variavel do tipo shot
+shot newShot(WINDOW *winAtual, int yAtual, int xAtual, int lancado, char format) {
+     shot tempShot = {winAtual, yAtual, xAtual, lancado, format};
+     return tempShot;
+}
+
 //ações do jogador em geral
-void mover(player * Jogador, shot *tiro) {
+void mover(player * Jogador, shot *tiros[100]) {
     int valor;
     valor = getch();
 
@@ -27,9 +33,16 @@ void mover(player * Jogador, shot *tiro) {
             }
             break;
         case (119):
-            tiro->lancado = 1;
-            tiro->yAtual = Jogador->yAtual - 1;
-            tiro->xAtual = Jogador->xAtual;
+            //shot * tiros[i] = tiro;
+
+            for (int i = 0; i < 100; i++) {
+                if (tiros[i]->lancado == 0) {
+                    tiros[i]->lancado = 1;
+                    tiros[i]->yAtual = Jogador->yAtual - 1;
+                    tiros[i]->xAtual = Jogador->xAtual;
+                    break;
+                } 
+            }
             break;
         default:
             break;
@@ -38,29 +51,36 @@ void mover(player * Jogador, shot *tiro) {
 }
 
 // atualizar coordenadas do jogador
-void atualizar(player * Jogador, shot*tiro) {
+void atualizar(player * Jogador, shot* tiros[100]) {
     mvwaddch(Jogador->winAtual, Jogador->yAtual, Jogador->xAtual, '@');
     wrefresh(Jogador->winAtual);
 
-    if (tiro->lancado == 1) {
-    mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, tiro->format);
-    wrefresh(tiro->winAtual);
-    //usleep(100000); // tempo em microsegundos
+    //shot *tiros[i] = tiro;
+
+    for (int i = 0; i < 100; i++) {
+        if (tiros[i]->lancado == 1) {
+            mvwaddch(tiros[i]->winAtual, tiros[i]->yAtual, tiros[i]->xAtual, tiros[i]->format);
+            wrefresh(tiros[i]->winAtual);
+        }
     }
 }
 
-void moverTiro(shot *tiro) {
-    if (tiro -> lancado == 1) {
-        if (tiro->yAtual > 1) {
-            mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
-            wrefresh(tiro->winAtual);
-            tiro->yAtual--;
-        //tiro ainda nao chegou no final
-        } else {
-            mvwaddch(tiro->winAtual, tiro->yAtual, tiro->xAtual, ' ');
-            tiro->format = ' ';
-            tiro->lancado = 0;
-            //tiro chegou no final
+void moverTiro(shot *tiros[100]) {
+    //shot *tiros[i] = tiro;
+
+    for (int i = 0; i < 100; i++) {
+        if (tiros[i]->lancado == 1) {
+            if (tiros[i]->yAtual > 1) {
+                mvwaddch(tiros[i]->winAtual, tiros[i]->yAtual, tiros[i]->xAtual, ' ');
+                wrefresh(tiros[i]->winAtual);
+                tiros[i]->yAtual--;
+                //tiro ainda nao chegou na altura final
+            } else {
+                mvwaddch(tiros[i]->winAtual, tiros[i]->yAtual, tiros[i]->xAtual, ' ');
+                //tiros[i]->format = ' ';
+                tiros[i]->lancado = 0;
+                //tiro chegou na altura final
+            }
         }
     }
 }
