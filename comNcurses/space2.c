@@ -24,18 +24,32 @@ typedef struct shot {
     char format;
 }shot;
 
+typedef struct enemy {
+    WINDOW *win;
+    int y;
+    int x;
+    int velocidade;
+    int direcao;
+    char *format;
+}enemy;
+
 player jogador;
 shot tiros[100];
+enemy inimigos[5];
 
 player newPlayer(WINDOW *win, int y, int x, int lifes, char format);
 
 shot newShot(WINDOW *win, int y, int x, int lancado, char format);
+
+enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char *format);
 
 void mover( void );
 
 void atualizar( void );
 
 void moverTiro( void );
+
+void moverInimigo( void );
 
 int main() {
 
@@ -57,9 +71,15 @@ int main() {
         tiros[i] = newShot(tela, 0, 0, 0, '^');
     }
 
+    for (int i = 0; i < 5; i++) {
+        inimigos[i] = newEnemy(tela, 10, 8 + 6*i, 1, -1, "=O=");
+
+    }
+
     while (!gameOver) {
         mover();
         moverTiro();
+        moverInimigo();
         atualizar();
         usleep(100000); //microssegundo
     }
@@ -78,6 +98,11 @@ player newPlayer(WINDOW *win, int y, int x, int lifes, char format) {
 
 shot newShot(WINDOW *win, int y, int x, int lancado, char format) {
     shot temp = {win, y, x, lancado, format};
+    return temp;
+}
+
+enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char * format) {
+    enemy temp = {win, y, x, velocidade, direcao, format};
     return temp;
 }
 
@@ -114,7 +139,7 @@ void mover (void) {
 }
 
 void moverTiro(void) {
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 100; i++) {
         if (tiros[i].lancado == 1) {
 
             mvwaddch(tiros[i].win, tiros[i].y, tiros[i].x, ' ');
@@ -130,15 +155,38 @@ void moverTiro(void) {
     
 }
 
+void moverInimigo( void ) {
+
+    for (int i = 0; i < 5; i++) {
+
+        mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", "   ");
+        wrefresh(inimigos[i].win);
+
+        if (inimigos[i].x < WIDTH - 3 && inimigos[i].x > 3) {
+            inimigos[i].x += inimigos[i].direcao;
+        } else {
+            inimigos[i].direcao *= -1;
+            inimigos[i].y++;
+            inimigos[i].x += inimigos[i].velocidade * inimigos[i].direcao;
+        }
+    }
+
+}
+
 void atualizar (void) {
     mvwaddch(jogador.win, jogador.y, jogador.x, jogador.format);
     wrefresh(jogador.win);
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 100; i++) {
         if (tiros[i].lancado == 1) {
             mvwaddch(tiros[i].win, tiros[i].y, tiros[i].x, tiros[i].format);
             wrefresh(tiros[i].win);
         }
     }
 
+    for (int i = 0; i < 5; i++) {
+        mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", inimigos[i].format);
+        wrefresh(inimigos[i].win);
+    }
+ 
 }
