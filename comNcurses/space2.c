@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+// compilar com gcc space2.c -o space.exe -lncurses -DNCURSES_STATIC
+
 #define HEIGHT 20
 #define WIDTH 41
 
