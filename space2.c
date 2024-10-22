@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include "c:\msys64\ucrt64\include\ncurses\ncurses.h"
 #include <unistd.h>
 #include <stdlib.h>
+#include <ncurses\ncurses.h>
 
-// compilar com gcc space2.c -o space.exe -lncurses -DNCURSES_STATIC
+// compilar com gcc space2.c -o space.exe -lncursesw
 
 #define HEIGHT 20
 #define WIDTH 41
@@ -77,10 +76,10 @@ int main() {
     }
 
     while (!gameOver) {
-        mover();
+        mover(); //jogador
         moverTiro();
         moverInimigo();
-        atualizar();
+        atualizar(); // atualiza todos
         usleep(100000); //microssegundo
     }
     getch();
@@ -127,7 +126,7 @@ void mover (void) {
             for (int i = 0; i < 100; i++) {
                 if (tiros[i].lancado == 0) {
                     tiros[i].lancado = 1;
-                    tiros[i].y = jogador.y - 1;
+                    tiros[i].y = jogador.y;
                     tiros[i].x = jogador.x;
                     break;
                 } 
@@ -156,20 +155,34 @@ void moverTiro(void) {
 }
 
 void moverInimigo( void ) {
-
+    // itereação para cada inimigo
     for (int i = 0; i < 5; i++) {
 
         mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", "   ");
         wrefresh(inimigos[i].win);
 
-        if (inimigos[i].x < WIDTH - 3 && inimigos[i].x > 3) {
+
+        if (inimigos[i].x < WIDTH - 4 && inimigos[i].x > 3) {
             inimigos[i].x += inimigos[i].direcao;
         } else {
             inimigos[i].direcao *= -1;
             inimigos[i].y++;
             inimigos[i].x += inimigos[i].velocidade * inimigos[i].direcao;
         }
-    }
+
+        //dentro da iteração de cada inimigo, verificar se há algum tiro na msm posição que ele
+        for (int j = 0; j < 100; j++) {
+            if (tiros[j].lancado == 1) {
+                if ((tiros[j].x == inimigos[i].x || tiros[j].x == inimigos[i].x + 1 || tiros[j].x == inimigos[i].x + 2) 
+                    && (tiros[j].y == inimigos[i].y + 1)) {
+
+                    inimigos[i].format = "   ";
+                    tiros[j].lancado = 0;
+                }
+            }
+        }
+    }   
+
 
 }
 
@@ -190,3 +203,4 @@ void atualizar (void) {
     }
  
 }
+
