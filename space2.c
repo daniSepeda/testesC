@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include "c:\msys64\ucrt64\include\ncurses\ncurses.h"
 #include <unistd.h>
 #include <stdlib.h>
+#include <ncurses\ncurses.h>
+#include <time.h>
+#include <string.h>
 
-// compilar com gcc space2.c -o space.exe -lncurses -DNCURSES_STATIC
+// compilar com gcc space2.c -o space.exe -lncursesw para linkagem dinâmica
+// compular com gcc space2.c -o space.exe -lncurses -DNCURSES_STATIC para linkagem estática
 
 #define HEIGHT 20
 #define WIDTH 41
@@ -31,17 +33,22 @@ typedef struct enemy {
     int velocidade;
     int direcao;
     char *format;
+    int visivel;
 }enemy;
 
 player jogador;
 shot tiros[100];
+shot tirosEnemy[100];
 enemy inimigos[5];
+
+#define MAXMOVCOOLDOWN 2
+int inimigomovcooldown = MAXMOVCOOLDOWN;
 
 player newPlayer(WINDOW *win, int y, int x, int lifes, char format);
 
 shot newShot(WINDOW *win, int y, int x, int lancado, char format);
 
-enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char *format);
+enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char *format, int visivel);
 
 void mover( void );
 
@@ -52,8 +59,7 @@ void moverTiro( void );
 void moverInimigo( void );
 
 int main() {
-
-    int gameOver = 0, i;
+    int gameOver = 0;
 
     initscr();
     cbreak();
@@ -63,26 +69,30 @@ int main() {
 
     WINDOW * tela = newwin(HEIGHT, WIDTH, 5, 30); 
     box(tela, 0, 0);
-    refresh(); // atualizar tudo dentro da borda
+    refresh(); // atualizar tudo dentro da janela principal
 
     jogador = newPlayer(tela, HEIGHT - 2, WIDTH / 2, 1, '@');
 
     for (int i = 0; i < 100; i++) {
         tiros[i] = newShot(tela, 0, 0, 0, '^');
+        tirosEnemy[i] = newShot(tela, 0, 0, 0 , '*');
     }
 
     for (int i = 0; i < 5; i++) {
-        inimigos[i] = newEnemy(tela, 10, 8 + 6*i, 1, -1, "=O=");
+        inimigos[i] = newEnemy(tela, 10, 8 + 6*i, 1, -1, "=O=", 1);
 
     }
+
+    srand(time(NULL));
 
     while (!gameOver) {
-        mover();
+        mover(); //jogador
         moverTiro();
-        moverInimigo();
-        atualizar();
+        moverInimigo();   
+        atualizar(); // atualiza todos os elementos
         usleep(100000); //microssegundo
     }
+    
     getch();
 
     endwin();
@@ -101,8 +111,8 @@ shot newShot(WINDOW *win, int y, int x, int lancado, char format) {
     return temp;
 }
 
-enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char * format) {
-    enemy temp = {win, y, x, velocidade, direcao, format};
+enemy newEnemy(WINDOW *win, int y, int x, int velocidade, int direcao, char * format, int visivel) {
+    enemy temp = {win, y, x, velocidade, direcao, format, visivel};
     return temp;
 }
 
@@ -127,7 +137,7 @@ void mover (void) {
             for (int i = 0; i < 100; i++) {
                 if (tiros[i].lancado == 0) {
                     tiros[i].lancado = 1;
-                    tiros[i].y = jogador.y - 1;
+                    tiros[i].y = jogador.y;
                     tiros[i].x = jogador.x;
                     break;
                 } 
@@ -151,42 +161,106 @@ void moverTiro(void) {
                tiros[i].lancado = 0;
             }
         }
+
+        if (tirosEnemy[i].lancado == 1) {
+
+            mvwaddch(tirosEnemy[i].win, tirosEnemy[i].y, tirosEnemy[i].x, ' ');
+            wrefresh(tirosEnemy[i].win);
+
+            if (tirosEnemy[i].y < HEIGHT - 2) {
+                tirosEnemy[i].y++;
+            } else {
+                tirosEnemy[i].lancado = 0;
+            }
+        }
     }
     
 }
 
 void moverInimigo( void ) {
+    // iteração para cada inimigo
+    int atirar;
+    inimigomovcooldown--;
 
+    //dentro da iteração de cada inimigo, verificar se há algum tiro na msm posição que ele
     for (int i = 0; i < 5; i++) {
-
-        mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", "   ");
-        wrefresh(inimigos[i].win);
-
-        if (inimigos[i].x < WIDTH - 3 && inimigos[i].x > 3) {
-            inimigos[i].x += inimigos[i].direcao;
-        } else {
-            inimigos[i].direcao *= -1;
-            inimigos[i].y++;
-            inimigos[i].x += inimigos[i].velocidade * inimigos[i].direcao;
+        for (int j = 0; j < 100; j++) {
+         if (inimigos[i].visivel == 1) {
+            if ((tiros[j].x == inimigos[i].x || tiros[j].x == inimigos[i].x + 1 || tiros[j].x == inimigos[i].x + 2) 
+                && (tiros[j].y == inimigos[i].y)) {
+                // se todos os critérios forem atendidos, o inimigo sofreu um tiro
+                inimigos[i].format = "   ";
+                tiros[j].lancado = 0;
+                inimigos[i].visivel = 0;
+                }
+            }
         }
     }
 
+    if (inimigomovcooldown <= 0){
+        inimigomovcooldown = MAXMOVCOOLDOWN;
+
+        for (int i = 0; i < 5; i++) {
+
+            mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", "   ");
+            wrefresh(inimigos[i].win);
+
+
+            if (inimigos[i].x < WIDTH - 4 && inimigos[i].x > 3) {
+                inimigos[i].x += inimigos[i].direcao;
+            } else {
+                for (int j = 0; j < 5; j++) {
+                    inimigos[j].direcao *= -1;
+                    inimigos[j].y++;
+                    inimigos[j].x += inimigos[j].direcao;
+                }
+            }
+
+            
+
+        //apenas os inimigos vivos/visiveis atiram
+            if (inimigos[i].visivel == 1) {
+                atirar = rand() % 100;
+                //criterio para atirar!
+                if (atirar%25 == 0) {
+                    for (int j = 0; j < 100; j++) {
+                        if (tirosEnemy[j].lancado == 0) {
+                            tirosEnemy[j].y = inimigos[i].y;
+                            tirosEnemy[j].x = inimigos[i].x;
+                            tirosEnemy[j].lancado = 1;
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+        }   
+
+    }
 }
 
 void atualizar (void) {
     mvwaddch(jogador.win, jogador.y, jogador.x, jogador.format);
     wrefresh(jogador.win);
 
+    for (int i = 0; i < 5; i++) {
+        mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", inimigos[i].format);
+        wrefresh(inimigos[i].win);
+    }
+
     for (int i = 0; i < 100; i++) {
         if (tiros[i].lancado == 1) {
             mvwaddch(tiros[i].win, tiros[i].y, tiros[i].x, tiros[i].format);
             wrefresh(tiros[i].win);
         }
+
+        if (tirosEnemy[i].lancado == 1) {
+            mvwaddch(tirosEnemy[i].win, tirosEnemy[i].y, tirosEnemy[i].x, tirosEnemy[i].format);
+            wrefresh(tirosEnemy[i].win);
+        }
     }
 
-    for (int i = 0; i < 5; i++) {
-        mvwprintw(inimigos[i].win, inimigos[i].y, inimigos[i].x, "%s", inimigos[i].format);
-        wrefresh(inimigos[i].win);
-    }
  
 }
+
